@@ -1,10 +1,10 @@
 # Crypto Sentiment Analysis
 
-> **Research project:** Analysis of social media message sentiment and its impact on cryptocurrency price dynamics
+> **Тема:** «Анализ тональности сообщений пользователей социальных сетей и оценка их влияния на динамику цен криптовалют»
 >
-> **Student:** Mugari Abderrahim, group NFIbd-01-22, RUDN University
+> **Студент:** Мугари Абдеррахим, группа: НФИбд-01-22
 >
-> **Supervisor:** Assoc. Prof., PhD Molodchenkov A.I.
+> **Науч. рук.:** доц., к.т.н. Молодченков А.И.
 
 Analysing the relationship between **Twitter sentiment** and **Bitcoin price movements** using NLP (VADER + FinBERT) and statistical methods (Pearson/Spearman correlation, Granger causality).
 
