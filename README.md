@@ -136,6 +136,16 @@ python main.py --skip-torchinfo --sample 50000
 | 6   | 0.7402      | 0.6253  | No                   |
 | 7   | 1.2834      | 0.3307  | No                   |
 
+### Table 4: VADER vs FinBERT — Sentiment Label Distribution
+
+| Label    | VADER count | VADER % | FinBERT count | FinBERT % |
+|----------|-------------|---------|---------------|-----------|
+| Positive | 21,613      | 43.23%  | 1,730         | 3.46%     |
+| Neutral  | 22,796      | 45.59%  | 45,947        | 91.89%    |
+| Negative | 5,591       | 11.18%  | 2,323         | 4.65%     |
+
+**Agreement rate: 47.22%** — FinBERT classifies 92% of tweets as neutral, while VADER distributes more evenly. This demonstrates the fundamental difference between lexicon-based (VADER) and transformer-based (FinBERT) approaches in the crypto domain.
+
 ### Figure 1: Sentiment vs Price
 ![Sentiment vs Price](results/figures/sentiment_vs_price.png)
 
@@ -153,6 +163,9 @@ python main.py --skip-torchinfo --sample 50000
 
 ### Figure 6: Scatter - Sentiment vs Return
 ![Scatter](results/figures/scatter_sentiment_return.png)
+
+### Figure 7: VADER vs FinBERT Comparison
+![VADER vs FinBERT](results/figures/vader_vs_finbert_comparison.png)
 
 ## FinBERT Architecture
 

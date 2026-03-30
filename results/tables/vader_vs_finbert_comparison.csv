@@ -1,0 +1,4 @@
+,VADER_count,VADER_%,FinBERT_count,FinBERT_%
+positive,21613,43.23,1730,3.46
+neutral,22796,45.59,45947,91.89
+negative,5591,11.18,2323,4.65
