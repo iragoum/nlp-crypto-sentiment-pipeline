@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large raw data (too big for git)
+Tweets_extraction_btc_eth_bnb_dataset/
+data/raw/tweets.csv
+data/processed/tweets_with_sentiment.csv
+
+# Large ONNX data (418MB)
+*.onnx.data
+
+# Pytest
+.pytest_cache/
+
+# Misc
+convert_data.py
+*.docx
+*.pdf
+*INSTRUCTIONS*.md
