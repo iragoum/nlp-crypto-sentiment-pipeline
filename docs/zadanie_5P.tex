@@ -1,0 +1,355 @@
+\documentclass[a4paper,12pt]{article}
+
+% ─── Кодировка и язык ───
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[russian]{babel}
+
+% ─── Поля ───
+\usepackage[left=2.5cm, right=1.5cm, top=2cm, bottom=2cm]{geometry}
+
+% ─── Пакеты ───
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{tabularx}
+
+% ─── Настройка листингов ───
+\lstset{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{gray!10},
+  frame=single,
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue!70},
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red!60},
+  language=Python,
+  inputencoding=utf8,
+  extendedchars=true,
+  literate={а}{{\cyra}}1 {б}{{\cyrb}}1 {в}{{\cyrv}}1 {г}{{\cyrg}}1
+           {д}{{\cyrd}}1 {е}{{\cyre}}1 {ж}{{\cyrzh}}1 {з}{{\cyrz}}1
+           {и}{{\cyri}}1 {й}{{\cyrishrt}}1 {к}{{\cyrk}}1 {л}{{\cyrl}}1
+           {м}{{\cyrm}}1 {н}{{\cyrn}}1 {о}{{\cyro}}1 {п}{{\cyrp}}1
+           {р}{{\cyrr}}1 {с}{{\cyrs}}1 {т}{{\cyrt}}1 {у}{{\cyru}}1
+           {ф}{{\cyrf}}1 {х}{{\cyrh}}1 {ц}{{\cyrc}}1 {ч}{{\cyrch}}1
+           {ш}{{\cyrsh}}1 {щ}{{\cyrshch}}1 {ы}{{\cyry}}1 {ь}{{\cyrsftsn}}1
+           {э}{{\cyrerev}}1 {ю}{{\cyryu}}1 {я}{{\cyrya}}1
+}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!60!black,
+  urlcolor=blue!70!black,
+  citecolor=green!50!black
+}
+
+% ─── Межстрочный интервал ───
+\usepackage{setspace}
+\onehalfspacing
+
+\begin{document}
+
+% ═══════════════════════════════════════════
+% ТИТУЛЬНЫЙ ЛИСТ
+% ═══════════════════════════════════════════
+
+\begin{titlepage}
+\begin{center}
+
+\textbf{РОССИЙСКИЙ УНИВЕРСИТЕТ ДРУЖБЫ НАРОДОВ\\ИМЕНИ ПАТРИСА ЛУМУМБЫ}\\[0.3cm]
+\textbf{Факультет физико-математических и естественных наук}\\[0.3cm]
+Направление подготовки: 09.03.03 <<Прикладная информатика>>\\[2cm]
+
+{\Large \textbf{ЗАДАНИЕ 5П}}\\[0.5cm]
+{\large \textbf{Прототип системы с документацией}}\\[1cm]
+
+{\large Тема НИР:}\\[0.3cm]
+{\large <<Анализ тональности сообщений пользователей социальных сетей\\
+и оценка их влияния на динамику цен криптовалют>>}\\[2cm]
+
+\begin{tabular}{ll}
+\textbf{Студент:} & Мугари Абдеррахим \\
+\textbf{Группа:} & НФИбд-01-22 \\
+\textbf{Науч. рук.:} & доц., к.т.н. Молодченков А.И. \\
+\textbf{Трек:} & П (прикладной) \\
+\end{tabular}
+
+\vfill
+Москва, 2026
+
+\end{center}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ═══════════════════════════════════════════
+% 1. ОПИСАНИЕ ПРОТОТИПА
+% ═══════════════════════════════════════════
+
+\section{Описание прототипа}
+
+\subsection{Назначение системы}
+
+Разработанный прототип представляет собой программный комплекс для автоматизированного
+анализа тональности сообщений пользователей Twitter, посвящённых криптовалюте Bitcoin,
+и оценки статистической взаимосвязи между агрегированными показателями тональности
+и динамикой рыночных цен BTC/USD.
+
+\subsection{Ключевой функционал}
+
+Прототип реализует следующие функциональные блоки:
+
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Загрузка и фильтрация данных} --- чтение датасета Twitter-сообщений (CSV),
+        фильтрация по языку (английский), дедупликация по идентификатору твита.
+  \item \textbf{Предобработка текста} --- удаление URL-адресов, упоминаний пользователей (@),
+        префикса ретвита (RT), приведение к нижнему регистру, токенизация,
+        удаление стоп-слов (NLTK).
+  \item \textbf{Анализ тональности (VADER)} --- лексиконный метод, использующий
+        оригинальный текст с учётом регистра, пунктуации и эмодзи. Генерирует
+        составной показатель (compound) в диапазоне $[-1, 1]$.
+  \item \textbf{Анализ тональности (FinBERT)} --- трансформерная модель
+        ProsusAI/finbert (109.5M параметров), обученная на финансовых текстах.
+        Классифицирует каждый твит как positive/neutral/negative.
+  \item \textbf{Получение ценовых данных} --- API CoinGecko с fallback-механизмом
+        (встроенные исторические данные при недоступности API).
+  \item \textbf{Агрегация и объединение} --- ежедневная агрегация показателей тональности
+        и объединение с ценовыми данными BTC.
+  \item \textbf{Корреляционный анализ} --- лагированные корреляции Пирсона и Спирмена
+        (лаги 0--7 дней), тест Грейнджер-каузальности, тест Дики--Фуллера на стационарность.
+  \item \textbf{Визуализация} --- автоматическая генерация 7 графиков и 6 таблиц
+        в форматах PNG и CSV.
+\end{enumerate}
+
+\subsection{Репозиторий}
+
+Код проекта размещён на GitHub:
+
+\begin{center}
+\url{https://github.com/iragoum/nlp-crypto-sentiment-pipeline}
+\end{center}
+
+% ═══════════════════════════════════════════
+% 2. РЕАЛИЗОВАННЫЙ VS ЗАПЛАНИРОВАННЫЙ
+% ═══════════════════════════════════════════
+
+\section{Реализованный функционал в сравнении с запланированным}
+
+\begin{table}[H]
+\centering
+\caption{Сравнение запланированного и реализованного функционала}
+\label{tab:planned_vs_done}
+\begin{tabularx}{\textwidth}{|p{5.5cm}|c|X|}
+\hline
+\textbf{Функционал} & \textbf{Статус} & \textbf{Комментарий} \\
+\hline
+Загрузка и фильтрация Twitter-данных & Реализовано & 664\,918 англоязычных твитов из 847 CSV-файлов \\
+\hline
+Предобработка текста (очистка, токенизация) & Реализовано & Regex-фильтрация, NLTK-токенизация \\
+\hline
+VADER-анализ тональности & Реализовано & Составной показатель compound для каждого твита \\
+\hline
+FinBERT-анализ тональности & Реализовано & ProsusAI/finbert, 3 класса (pos/neu/neg) \\
+\hline
+Получение цен BTC (CoinGecko API) & Реализовано & С fallback-механизмом для offline-режима \\
+\hline
+Агрегация на дневном уровне & Реализовано & Объединение sentiment + price по дате \\
+\hline
+Корреляции Пирсона/Спирмена (лаги 0--7) & Реализовано & 8 лагов, p-value для каждого \\
+\hline
+Тест Грейнджер-каузальности & Реализовано & F-статистика, p-value, лаги 1--7 \\
+\hline
+ADF-тест на стационарность & Реализовано & Для VADER и BTC return \\
+\hline
+Сравнение VADER vs FinBERT & Реализовано & Таблица распределений, матрица согласия \\
+\hline
+Визуализация (графики) & Реализовано & 7 графиков PNG с подписями осей и легендой \\
+\hline
+CI/CD (GitHub Actions) & Реализовано & Python 3.10, 3.11, 3.12; pytest + flake8 \\
+\hline
+torchinfo-вывод архитектуры & Реализовано & 109\,484\,547 параметров \\
+\hline
+ONNX-экспорт для Netron & Реализовано & Файл .onnx + скриншот в README \\
+\hline
+Веб-интерфейс & Не реализовано & Запланировано для ВКР \\
+\hline
+Мультивалютный анализ (ETH, BNB) & Не реализовано & Запланировано для ВКР \\
+\hline
+\end{tabularx}
+\end{table}
+
+Все запланированные для этапа НИР компоненты реализованы в полном объёме.
+Веб-интерфейс и мультивалютный анализ запланированы для следующего этапа (ВКР).
+
+% ═══════════════════════════════════════════
+% 3. ИНСТРУКЦИЯ ПО ЗАПУСКУ
+% ═══════════════════════════════════════════
+
+\section{Инструкция по запуску}
+
+\subsection{Требования}
+
+\begin{itemize}
+  \item Python 3.10 или выше
+  \item pip (менеджер пакетов Python)
+  \item Git
+\end{itemize}
+
+\subsection{Установка}
+
+\begin{lstlisting}[language=bash, caption={Установка зависимостей}]
+git clone https://github.com/iragoum/nlp-crypto-sentiment-pipeline.git
+cd nlp-crypto-sentiment-pipeline
+python -m venv venv
+source venv/bin/activate     # Linux/Mac
+venv\Scripts\activate        # Windows
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+pip install -r requirements.txt
+\end{lstlisting}
+
+\subsection{Запуск}
+
+\begin{lstlisting}[language=bash, caption={Команды запуска}]
+# Полный pipeline (VADER + FinBERT)
+python main.py
+
+# Только VADER (быстрый режим, ~10 мин)
+python main.py --skip-finbert --skip-torchinfo
+
+# Подвыборка для тестирования
+python main.py --skip-torchinfo --sample 50000
+
+# Запуск тестов
+pytest tests/ -v
+\end{lstlisting}
+
+% ═══════════════════════════════════════════
+% 4. РЕЗУЛЬТАТЫ ТЕСТИРОВАНИЯ
+% ═══════════════════════════════════════════
+
+\section{Результаты тестирования}
+
+\subsection{Модульные тесты (pytest)}
+
+Тестовый набор включает 28 модульных тестов, охватывающих три основных модуля системы.
+
+\begin{table}[H]
+\centering
+\caption{Результаты модульного тестирования}
+\label{tab:test_results}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Модуль} & \textbf{Кол-во тестов} & \textbf{Статус} \\
+\hline
+\texttt{test\_preprocessor.py} & 10 & 10/10 passed \\
+\hline
+\texttt{test\_sentiment\_analyzer.py} & 6 & 6/6 passed \\
+\hline
+\texttt{test\_correlation\_analyzer.py} & 12 & 12/12 passed \\
+\hline
+\textbf{Итого} & \textbf{28} & \textbf{28/28 passed} \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Покрытие тестами}
+
+\begin{itemize}
+  \item \textbf{Preprocessor:} удаление URL, упоминаний, RT-префикса; приведение к нижнему
+        регистру; обработка пустых строк и None; токенизация; удаление стоп-слов.
+  \item \textbf{Sentiment Analyzer:} корректность колонок VADER; диапазон compound
+        $[-1, 1]$; правильность полярности для позитивных и негативных текстов;
+        сохранение индекса DataFrame.
+  \item \textbf{Correlation Analyzer:} агрегация по дням; корректность лагированных
+        корреляций; диапазон коэффициентов; тест Грейнджера; ADF-тест;
+        корреляционная матрица.
+\end{itemize}
+
+\subsection{CI/CD}
+
+Непрерывная интеграция настроена через GitHub Actions. При каждом push в ветку \texttt{main}
+автоматически запускаются:
+
+\begin{enumerate}
+  \item Модульные тесты (\texttt{pytest tests/ -v}) на Python 3.10, 3.11, 3.12.
+  \item Линтинг кода (\texttt{flake8}).
+\end{enumerate}
+
+Статус CI: \textbf{все проверки проходят успешно} (см. бейдж в README репозитория).
+
+\subsection{Метрики работы pipeline}
+
+\begin{table}[H]
+\centering
+\caption{Метрики выполнения pipeline (50\,000 твитов)}
+\label{tab:pipeline_metrics}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Метрика} & \textbf{Значение} \\
+\hline
+Общее число твитов в датасете & 664\,918 \\
+\hline
+Число обработанных твитов (выборка) & 50\,000 \\
+\hline
+Диапазон дат & 26.07.2022 -- 30.08.2022 \\
+\hline
+Число уникальных дней & 36 \\
+\hline
+Средний VADER compound & $+0.169$ \\
+\hline
+FinBERT: positive / neutral / negative & 3.46\% / 91.89\% / 4.65\% \\
+\hline
+Согласованность VADER и FinBERT & 47.22\% \\
+\hline
+Корреляция Пирсона (lag 0) & $r = 0.251$, $p = 0.146$ \\
+\hline
+Тест Грейнджера (lag 1--7) & Незначим ($p > 0.05$) \\
+\hline
+ADF-тест (VADER daily mean) & Нестационарен ($p = 0.88$) \\
+\hline
+ADF-тест (BTC daily return) & Стационарен ($p < 0.001$) \\
+\hline
+\end{tabular}
+\end{table}
+
+% ═══════════════════════════════════════════
+% 5. НОВИЗНА ПОДХОДА
+% ═══════════════════════════════════════════
+
+\section{Новизна подхода}
+
+Основная новизна прототипа заключается в \textbf{одновременном применении двух
+принципиально различных подходов к анализу тональности} и их систематическом
+сравнении в контексте криптовалютного рынка:
+
+\begin{enumerate}
+  \item \textbf{VADER} (Valence Aware Dictionary and sEntiment Reasoner) ---
+        лексиконный метод, учитывающий регистр, пунктуацию, степень интенсивности
+        и эмодзи. Не требует обучения, работает на исходном тексте.
+  \item \textbf{FinBERT} (ProsusAI/finbert) --- трансформерная модель на базе BERT,
+        дообученная на корпусе финансовых текстов. 109.5 млн параметров.
+        Работает на очищенном тексте.
+\end{enumerate}
+
+Ключевое наблюдение: \textbf{согласованность двух методов составляет лишь 47.22\%},
+что свидетельствует о существенном различии в интерпретации тональности
+криптовалютных сообщений. FinBERT классифицирует 91.89\% твитов как нейтральные,
+тогда как VADER распределяет оценки более равномерно (43.23\% позитивных,
+45.59\% нейтральных, 11.18\% негативных).
+
+Это различие открывает перспективу для дальнейшего исследования:
+какой из подходов обеспечивает более высокую предсказательную силу
+для динамики цен криптовалют.
+
+\end{document}
