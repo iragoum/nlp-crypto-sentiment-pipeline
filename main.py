@@ -10,22 +10,21 @@ from __future__ import annotations
 
 import argparse
 import logging
-import sys
 from pathlib import Path
 
 import matplotlib
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-import seaborn as sns
-import numpy as np
-import pandas as pd
+import matplotlib.pyplot as plt  # noqa: E402
+import matplotlib.dates as mdates  # noqa: E402
+import seaborn as sns  # noqa: E402
+import numpy as np  # noqa: E402
+import pandas as pd  # noqa: E402
 
-from src.data_loader import load_tweets
-from src.preprocessor import preprocess_dataframe
-from src.sentiment_analyzer import score_vader, score_finbert
-from src.price_fetcher import load_or_fetch_prices
-from src.correlation_analyzer import (
+from src.data_loader import load_tweets  # noqa: E402
+from src.preprocessor import preprocess_dataframe  # noqa: E402
+from src.sentiment_analyzer import score_vader, score_finbert  # noqa: E402
+from src.price_fetcher import load_or_fetch_prices  # noqa: E402
+from src.correlation_analyzer import (  # noqa: E402
     aggregate_daily_sentiment,
     compute_lagged_correlations,
     run_granger_test,
@@ -125,8 +124,8 @@ def plot_correlation_heatmap(corr_df: pd.DataFrame, title: str, fname: str) -> N
 def plot_lagged_correlation(lag_df: pd.DataFrame) -> None:
     """Bar chart of Pearson r at different lags."""
     fig, ax = plt.subplots(figsize=(10, 5))
-    bars = ax.bar(lag_df["lag"], lag_df["pearson_r"], color="#4C72B0",
-                  edgecolor="black", alpha=0.8)
+    ax.bar(lag_df["lag"], lag_df["pearson_r"], color="#4C72B0",
+           edgecolor="black", alpha=0.8)
     for i, row in lag_df.iterrows():
         if row["pearson_p"] < 0.05:
             ax.text(row["lag"], row["pearson_r"] + 0.005, "*",
@@ -209,8 +208,10 @@ def main():
     if not args.skip_finbert:
         finbert_scores = score_finbert(df["cleaned_text"])
         df = pd.concat([df, finbert_scores], axis=1)
-        logger.info("FinBERT complete. Label distribution:\n%s",
-                     df["finbert_label"].value_counts().to_string())
+        logger.info(
+            "FinBERT complete. Label distribution:\n%s",
+            df["finbert_label"].value_counts().to_string()
+        )
 
     # ── Step 4: torchinfo summary ──────────────────────────────────────
     if not args.skip_torchinfo and not args.skip_finbert:
@@ -289,8 +290,9 @@ def main():
     plot_daily_sentiment_vs_price(daily, prices)
     plot_tweet_volume(daily)
     plot_scatter_sentiment_return(merged)
-    plot_correlation_heatmap(corr, "Correlation Matrix (Pearson)",
-                            "correlation_heatmap.png")
+    plot_correlation_heatmap(
+        corr, "Correlation Matrix (Pearson)", "correlation_heatmap.png"
+    )
     if not lag_df.empty:
         plot_lagged_correlation(lag_df)
 
@@ -311,8 +313,10 @@ def main():
     logger.info("Date range: %s to %s", merged["date"].min(), merged["date"].max())
     logger.info("Mean VADER compound: %.4f", df["vader_compound"].mean())
     if "finbert_label" in df.columns:
-        logger.info("FinBERT label distribution:\n%s",
-                     df["finbert_label"].value_counts(normalize=True).to_string())
+        logger.info(
+            "FinBERT label distribution:\n%s",
+            df["finbert_label"].value_counts(normalize=True).to_string()
+        )
     logger.info("Peak lag-0 Pearson r: %.4f (p=%.4f)",
                 lag_df.iloc[0]["pearson_r"], lag_df.iloc[0]["pearson_p"])
     logger.info("Results in: %s", RESULTS.resolve())

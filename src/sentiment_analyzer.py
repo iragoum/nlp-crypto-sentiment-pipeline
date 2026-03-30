@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional
 
 import pandas as pd
 from tqdm import tqdm
@@ -99,7 +98,6 @@ def get_torchinfo_summary() -> str:
     """
     from torchinfo import summary
     from transformers import AutoModelForSequenceClassification, AutoTokenizer
-    import torch
 
     model_name = "ProsusAI/finbert"
     logger.info("Loading FinBERT for torchinfo summary...")
